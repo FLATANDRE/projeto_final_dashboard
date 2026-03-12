@@ -18,3 +18,10 @@ dados = pd.DataFrame({
     'Quantidade': np.random.randint(1, 30, n),
     'Custo': np.random.uniform(80, 8000, n)
 })
+
+# campo calculado
+dados['Lucro'] = dados['Vendas'] - dados['Custo']
+# Salvar em CSV
+dados.to_csv('./dados/vendas.csv', index=False)
+
+print("Dados de vendas gerados e salvos em './dados/vendas.csv'")

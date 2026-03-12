@@ -1,0 +1,97 @@
+import streamlit as st
+import pandas as pd
+import plotly.express as px
+
+def carregar_dados():
+    # Carregar os dados de vendas
+    df = pd.read_csv('dados/vendas.csv')
+    return df
+
+# utiliza a função para carregar os dados
+# e armazena em uma variável para uso posterior
+# é um dataframe do pandas que contém os dados de vendas
+dados_vendas = carregar_dados()
+
+st.title("Visão Geral do Negócio")
+
+# KPIs principais
+# KPI = Key Performance Indicator (Indicador-chave de desempenho)
+col1, col2, col3, col4 = st.columns(4)
+
+# coluna 1 exibe a receita total, formatada como moeda brasileira
+col1.metric(":moneybag: Receita Total", f"R$ {dados_vendas['Vendas'].sum():,.2f}")
+
+# coluna 2 exibe o lucro total, formatado como moeda brasileira
+col2.metric(":chart_with_upwards_trend: Lucro Total", f"R$ {dados_vendas['Lucro'].sum():,.2f}")
+
+# coluna 3 exibe o total de transações, que é o número de linhas no dataframe de vendas
+col3.metric(":shopping_cart: Total Transações", f"{len(dados_vendas)}")
+
+# coluna 4 exibe o ticket médio, que é a média do valor das vendas, 
+# formatada como moeda brasileira
+col4.metric(":bar_chart: Ticket Médio", f"R$ {dados_vendas['Vendas'].mean():,.2f}")
+
+st.divider()
+
+# gráficos de resumos
+
+colA, colB = st.columns(2)
+
+with colA:
+    # Agrupar os dados por região e somar as vendas
+    vendas_regiao = dados_vendas.groupby('Região')['Vendas'].sum().reset_index()
+
+    # Criar um gráfico de pizza para mostrar a distribuição de vendas por região
+    fig = px.pie(vendas_regiao, names='Região', values='Vendas', 
+                 title='Distribuição de Vendas por Região', 
+                 hole=0.4)
+    
+    # Exibir o gráfico usando Streamlit
+    st.plotly_chart(fig, width='stretch')
+
+
+with colB:
+    # Converter a coluna 'Data' para o tipo datetime
+    dados_vendas['Data'] = pd.to_datetime(dados_vendas['Data'])
+    dados_vendas['Mês'] = dados_vendas['Data'].dt.to_period('M').astype(str)
+
+    # Agrupar os dados por mês e somar as vendas
+    vendas_mensal = dados_vendas.groupby('Mês')['Vendas'].sum().reset_index()
+    
+    # Criar um gráfico de linha para mostrar a evolução mensal das vendas
+    fig = px.line(vendas_mensal, x='Mês', y='Vendas',
+                  title='Evolução Mensal de Vendas',
+                  markers=True
+                )
+    
+    # Exibir o gráfico usando Streamlit
+    st.plotly_chart(fig, width='stretch')
+
+
+# Top 5 produtos
+st.subheader(":moneybag: Top 5 Produtos por Receita")
+
+# Agrupar os dados por produto e somar as vendas, 
+# depois selecionar os 5 produtos com maior receita
+top5_produtos = dados_vendas.groupby('Produto')['Vendas'].sum().nlargest(5).reset_index()
+
+# Criar um gráfico de barras para mostrar os 
+# top 5 produtos por receita, com as barras coloridas de acordo com o valor das vendas
+# o gráfico tem o título "Top 5 Produtos", o eixo x mostra os nomes dos produtos,
+# o eixo y mostra o valor das vendas
+# 
+# cores: 'aggrnyl', 'agsunset', 'algae', 'amp', 'armyrose', 'balance', 'blackbody', 'bluered', 'blues',
+#  'blugrn', 'bluyl', 'brbg', 'brwnyl', 'bugn', 'bupu', 'burg', 'burgyl', 'cividis', 'curl', 'darkmint', 
+# 'deep', 'delta', 'dense', 'earth', 'edge', 'electric', 'emrld', 'fall', 'geyser', 'gnbu', 'gray', 'greens', 
+# 'greys', 'haline', 'hot', 'hsv', 'ice', 'icefire', 'inferno', 'jet', 'magenta', 'magma', 'matter', 'mint', 
+# 'mrybm', 'mygbm', 'oranges', 'orrd', 'oryel', 'oxy', 'peach', 'phase', 'picnic', 'pinkyl', 'piyg', 'plasma',
+#  'plotly3', 'portland', 'prgn', 'pubu', 'pubugn', 'puor', 'purd', 'purp', 'purples', 'purpor', 'rainbow', 'rdbu',
+#  'rdgy', 'rdpu', 'rdylbu', 'rdylgn', 'redor', 'reds', 'solar', 'spectral', 'speed', 'sunset', 'sunsetdark', 
+# 'teal', 'tealgrn', 'tealrose', 'tempo', 'temps', 'thermal', 'tropic', 'turbid', 'turbo', 'twilight', 'viridis', 
+#  'ylgn', 'ylgnbu', 'ylorbr', 'ylorrd'
+fig = px.bar(top5_produtos, x='Produto', y='Vendas',
+             title='Top 5 Produtos',
+             color='Vendas',
+            color_continuous_scale='magenta')
+
+st.plotly_chart(fig, width='stretch')
