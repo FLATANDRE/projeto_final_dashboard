@@ -23,20 +23,27 @@ mapa_vendas = st.Page('./pages/mapa_vendas.py',
                       icon='🗺️')
 
 
-#analise_produtos = st.Page('./pages/analise_produtos.py',
-#                            title='Produtos',
-#                            icon=':package:')
+analise_produtos = st.Page('./pages/analise_produtos.py',
+                            title='Produtos',
+                            icon='📦')
 
-#sobre = st.Page('./pages/sobre.py',
-#                 title='Sobre',
-#                 icon=':information_source:')
+analise_produtos_professor = st.Page('./pages/analise_produtos_professor.py',
+                            title='Produtos - Professor',
+                            icon='📦')
+
+sobre = st.Page('./pages/sobre.py',
+                 title='Sobre',
+                 icon='ℹ️')
 
 # Configurando a navegação entre as páginas
 pg = st.navigation(
     [
        visao_geral,
        analise_vendas, 
-       mapa_vendas,      
+       analise_produtos,
+       analise_produtos_professor,
+       mapa_vendas,  
+       sobre    
     ]     
 )
 

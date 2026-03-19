@@ -44,15 +44,24 @@ data_range = st.sidebar.date_input(
     max_value=data_max
 )
 
+if len(data_range) == 2:
+    data_inicio = pd.to_datetime(data_range[0])
+    data_fim = pd.to_datetime(data_range[1])
+else:
+    st.warning("Por favor, selecione um intervalo de datas válido.")
+    st.stop()
+
 # aplicando os filtros selecionados pelo usuário para criar um dataframe filtrado
 dados_filtrados = dados_vendas[
     (dados_vendas["Região"].isin(regioes)) &
     (dados_vendas["Categoria"].isin(categorias)) &
     (dados_vendas["Data"].between( 
-        pd.to_datetime(data_range[0]), 
-        pd.to_datetime(data_range[1])
+        data_inicio, 
+        data_fim
         ))
 ]
+
+st.balloons()
 
 # métricas filtradas
 col1, col2, col3 = st.columns(3)
